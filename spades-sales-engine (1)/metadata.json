@@ -1,0 +1,7 @@
+{
+  "name": "Spades Sales Engine",
+  "description": "A plug-and-play automated sales engine platform connecting lead generation, voice agents, video personalization, and CRM.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
