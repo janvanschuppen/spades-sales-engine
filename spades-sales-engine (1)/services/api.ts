@@ -1,3 +1,6 @@
+const RAW_BASE = import.meta.env.VITE_API_BASE_URL || "";
+const API_BASE = RAW_BASE.replace(/\/+$/, "");
+const withBase = (path: string) => (API_BASE ? `${API_BASE}${path}` : path);
 // ================================
 // UNIVERSAL FRONTEND API CLIENT
 // Deterministic + Schema-Safe
