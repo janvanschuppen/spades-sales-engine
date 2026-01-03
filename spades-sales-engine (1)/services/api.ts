@@ -362,4 +362,3 @@ export const api = {
     return {} as T;
   },
 };
-```
