@@ -290,7 +290,7 @@ async function buildIcpResponse(url) {
       name: companyName,
       domain,
       logoUrl: logo.url, // IMPORTANT: will be absolute icon URL OR "/logo.png" fallback
-      brandColor: "#6C47FF",
+      brandColor: "#FF0000",
     },
     persona: {
       title: "VP of Sales",
