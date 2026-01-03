@@ -164,9 +164,9 @@ function coerceToIcpSchema(raw: any, urlStr?: string) {
 
 export const api = {
   async post<T>(path: string, body: any): Promise<T> {
-    if (path === "/analysis/icp") {
+    if (path === "/analysis/icp" || path === "/api/analysis/icp") {
       const urlStr = body?.url || "";
-      const endpoint = withBase("/analysis/icp");
+      const endpoint = withBase("/api/analysis/icp");
       console.log("[analysis/icp] calling backend", { url: endpoint, apiBasePresent: !!API_BASE, rawLen: RAW_BASE.length });
 
       // If we're on a deployed site but API_BASE is missing, don't hang. Return fallback immediately.
