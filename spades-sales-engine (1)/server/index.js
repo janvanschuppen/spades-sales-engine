@@ -36,7 +36,7 @@ function buildIcpResponse(url) {
     company: {
       name: companyName,
       domain,
-      logoUrl: "/logo.png",
+      logoUrl: `https://logo.clearbit.com/${domain}`,
       brandColor: "#6C47FF",
     },
     persona: {
