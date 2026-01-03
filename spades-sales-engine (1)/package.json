@@ -1,13 +1,22 @@
 {
-  "name": "spades-server",
+  "name": "spades-sales-engine",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.cjs",
+  "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start": "node index.cjs"
   },
   "dependencies": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "lucide-react": "^0.561.0",
+    "recharts": "^3.6.0",
     "cors": "^2.8.5",
     "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "vite": "^6.1.1"
   }
 }
