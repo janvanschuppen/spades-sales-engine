@@ -10,6 +10,10 @@ app.use(express.json());
 // HEALTH
 // --------------------
 app.get("/health", (req, res) => res.status(200).send("ok"));
+// Alias route (so the frontend /auth/me doesn't 404)
+app.get("/auth/me", (req, res) => {
+    res.json({ success: false, user: null });
+});
 
 // --------------------
 // HELPERS
