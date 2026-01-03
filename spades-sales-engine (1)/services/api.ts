@@ -14,7 +14,7 @@ function readViteEnv(key: string): string {
   }
 }
 
-const RAW_BASE = readViteEnv("VITE_API_BASE_URL");
+const RAW_BASE = import.meta.env.VITE_API_BASE_URL || "";
 const API_BASE = RAW_BASE.replace(/\/+$/, "");
 const withBase = (path: string) => (API_BASE ? `${API_BASE}${path}` : path);
 
