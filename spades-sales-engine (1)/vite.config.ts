@@ -1,3 +1,4 @@
+console.log("[build-proof] VITE_API_BASE_URL =", process.env.VITE_API_BASE_URL || "(missing)");
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
