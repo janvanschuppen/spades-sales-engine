@@ -1,71 +1,45 @@
-import React from 'react';
-import { ICPAnalysisResult } from '../../types';
+import React from "react";
 
 interface CompanyHeaderProps {
-  data: Partial<ICPAnalysisResult>;
+  data: any;
 }
 
 export const CompanyHeader: React.FC<CompanyHeaderProps> = ({ data }) => {
-  const {
-    companyName = "Company Profile",
-    industry,
-    primaryColor = "#3b82f6",
-    logoUrl,
-    heroImage,
-  } = data || {};
+  const logo =
+    data?.company?.logoUrl && data.company.logoUrl !== "/logo.png"
+      ? data.company.logoUrl
+      : "/logo.png";
 
-  // Safe fallback images
-  const safeLogo =
-    logoUrl && logoUrl.length > 5
-      ? logoUrl
-      : "https://cdn-icons-png.flaticon.com/512/5968/5968764.png";
-
-  const safeHero =
-    heroImage && heroImage.length > 5
-      ? heroImage
-      : "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80";
+  const brandColor = data?.company?.brandColor || "#6C47FF";
+  const companyName = data?.company?.name || "Company";
 
   return (
-    <div className="w-full relative mb-16 md:mb-20">
+    <div className="relative rounded-3xl overflow-hidden bg-black">
       {/* HERO IMAGE */}
-      <div
-        className="w-full h-48 md:h-64 rounded-xl bg-cover bg-center shadow-md overflow-hidden relative"
-        style={{ backgroundImage: `url(${safeHero})` }}
-      >
-        <div className="absolute inset-0 bg-black/40" />
-        <div 
-          className="absolute inset-0 opacity-30" 
-          style={{ background: `linear-gradient(135deg, ${primaryColor}44 0%, transparent 100%)` }}
-        />
-      </div>
+      <div className="h-[260px] w-full bg-gradient-to-br from-zinc-800 to-zinc-900" />
 
-      {/* LOGO + COMPANY INFO */}
-      <div className="absolute -bottom-10 left-6 md:left-10 flex items-end gap-5">
-        {/* LOGO FRAME */}
-        <div className="relative group">
-          <div className="absolute inset-0 bg-white rounded-2xl shadow-2xl" />
-          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl border-4 shadow-2xl overflow-hidden bg-white p-2 flex items-center justify-center transition-transform group-hover:scale-[1.02]" style={{ borderColor: primaryColor }}>
+      {/* CONTENT */}
+      <div className="absolute inset-0 flex items-end">
+        <div className="p-8 flex items-center gap-6">
+          {/* LOGO (1:1 ONLY) */}
+          <div
+            className="w-20 h-20 rounded-2xl bg-black flex items-center justify-center overflow-hidden"
+            style={{ border: `3px solid ${brandColor}` }}
+          >
             <img
-              src={safeLogo}
+              src={logo}
               alt={`${companyName} logo`}
-              className="max-w-full max-h-full object-contain"
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = "/logo.png";
+              }}
             />
           </div>
-        </div>
 
-        {/* TEXT */}
-        <div className="mb-1 md:mb-3">
-          <h1 className="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl tracking-tight">
+          {/* NAME */}
+          <h1 className="text-3xl md:text-4xl font-bold text-white">
             {companyName}
           </h1>
-
-          {industry && (
-            <span
-              className="inline-block mt-2 px-3 py-1 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-xl"
-            >
-              {industry}
-            </span>
-          )}
         </div>
       </div>
     </div>
