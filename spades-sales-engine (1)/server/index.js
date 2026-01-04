@@ -289,7 +289,7 @@ async function buildIcpResponse(url) {
     company: {
       name: companyName,
       domain,
-      logoUrl: logo.url, // IMPORTANT: will be absolute icon URL OR "/logo.png" fallback
+      logoUrl: `https://logo.clearbit.com/${domain}`,
       brandColor: "#FF0000",
     },
     persona: {
