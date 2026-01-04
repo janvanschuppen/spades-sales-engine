@@ -13,10 +13,17 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 /* -------------------- */
+/* CONFIG */
+/* -------------------- */
+// 🔴 IMPORTANT: set this to your REAL backend URL on Render
+const BACKEND_BASE_URL =
+  process.env.BACKEND_BASE_URL || "https://spades-sales-engine.onrender.com";
+
+/* -------------------- */
 /* SERVE logo.png (NO public folder needed) */
 /* -------------------- */
 app.get("/logo.png", (req, res) => {
-  const logoPath = path.join(__dirname, "logo.png");
+  const logoPath = path.join(__dirname, "..", "logo.png"); // logo.png is repo root
   if (fs.existsSync(logoPath)) {
     res.sendFile(logoPath);
   } else {
@@ -34,41 +41,46 @@ app.get("/auth/me", (_, res) => res.json({ success: false, user: null }));
 /* LOGO RESOLVER (STRICT 1:1 ONLY) */
 /* -------------------- */
 async function resolveSquareIconLogo(domain) {
-  // HARD RULE: never favicon, never crop
-  // If no safe icon exists → fallback
+  /**
+   * HARD RULES (ENFORCED):
+   * - No favicon
+   * - No cropping
+   * - No Clearbit
+   * - If no VERIFIED 1:1 icon → fallback ONLY
+   */
+
   return {
-    url: "/logo.png",
+    url: `${BACKEND_BASE_URL}/logo.png`,
     confidence: "fallback"
   };
 }
 
 /* -------------------- */
-/* ICP BUILDER (THIS IS THE FIX) */
+/* ICP BUILDER (FINAL + CORRECT) */
 /* -------------------- */
 async function buildIcpResponse(url) {
   let domain = "company.com";
   let name = "COMPANY";
 
   try {
-    domain = String(url).replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
+    domain = String(url)
+      .replace(/^https?:\/\//, "")
+      .replace(/^www\./, "")
+      .split("/")[0];
     name = domain.split(".")[0].toUpperCase();
   } catch {}
 
   const logo = await resolveSquareIconLogo(domain);
 
   return {
-    /* 🔥 FRONTEND EXPECTS THIS EXACT SHAPE 🔥 */
-
     company: {
       name,
       domain,
-      logoUrl: logo.url
+      logoUrl: logo.url // ✅ ALWAYS ABSOLUTE URL
     },
 
-    /* ✅ THIS is what your button + cards use */
-    primaryColor: "#FF0000",
+    primaryColor: "#6C47FF",
 
-    /* ✅ MUST be a STRING (not an object) */
     valueProp: "Automate your entire sales pipeline without manual work.",
 
     icp: {
@@ -79,7 +91,6 @@ async function buildIcpResponse(url) {
         mindset: "Growth-focused, efficiency obsessed",
         motivation: "Hit aggressive revenue targets with fewer people"
       },
-
       painPoints: [
         { title: "Inconsistent messaging", description: "Every rep sells differently" },
         { title: "Manual CRM work", description: "Sales time wasted on admin" },
@@ -111,4 +122,6 @@ app.post("/api/analysis/icp", async (req, res) => {
 /* START */
 /* -------------------- */
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`🚀 Backend running on ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Backend running on ${BACKEND_BASE_URL}`)
+);
