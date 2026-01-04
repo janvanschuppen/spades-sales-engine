@@ -1,12 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 const sharp = require("sharp");
+const path = require("path");
 
 const app = express();
 
 // Enable CORS for frontend requests
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+
+// ✅ Serve static files (so /logo.png works as fallback)
+app.use(express.static(path.join(__dirname, "public")));
 
 // --------------------
 // HEALTH
@@ -67,9 +71,17 @@ async function fetchWithTimeout(url, ms) {
   }
 }
 
+function looksLikeFavicon(u) {
+  const s = String(u || "").toLowerCase();
+  return s.includes("favicon") || s.endsWith(".ico");
+}
+
 async function getImageMetaSquare(url) {
   // returns { ok, width, height } only if square and big enough
   try {
+    // 🚫 Hard rule: never use favicons
+    if (looksLikeFavicon(url)) return { ok: false };
+
     const resp = await fetchWithTimeout(url, 6000);
     if (!resp.ok) return { ok: false };
 
@@ -95,23 +107,26 @@ function parseLinkTagsForIcons(html, pageUrl) {
 
   // apple-touch-icon
   {
-    const re = /<link[^>]*rel=["']apple-touch-icon[^"']*["'][^>]*href=["']([^"']+)["'][^>]*>/gi;
+    const re =
+      /<link[^>]*rel=["']apple-touch-icon[^"']*["'][^>]*href=["']([^"']+)["'][^>]*>/gi;
     let m;
     while ((m = re.exec(html))) {
       const href = m[1];
       const u = absUrl(pageUrl, href);
-      if (u) out.push({ url: u, source: "apple-touch-icon" });
+      if (u && !looksLikeFavicon(u)) out.push({ url: u, source: "apple-touch-icon" });
     }
   }
 
   // rel="icon" or rel="shortcut icon"
+  // NOTE: we keep these BUT block favicon/ico and later enforce >=128 square.
   {
-    const re = /<link[^>]*rel=["'](?:icon|shortcut icon)["'][^>]*href=["']([^"']+)["'][^>]*>/gi;
+    const re =
+      /<link[^>]*rel=["'](?:icon|shortcut icon)["'][^>]*href=["']([^"']+)["'][^>]*>/gi;
     let m;
     while ((m = re.exec(html))) {
       const href = m[1];
       const u = absUrl(pageUrl, href);
-      if (u) out.push({ url: u, source: "link-icon" });
+      if (u && !looksLikeFavicon(u)) out.push({ url: u, source: "link-icon" });
     }
   }
 
@@ -146,7 +161,7 @@ async function parseManifestForIcons(manifestUrl) {
       const squareSize = sizes.match(/(\d+)\s*x\s*\1/);
       if (src && squareSize) {
         const u = absUrl(manifestUrl, src);
-        if (u) out.push({ url: u, source: "manifest-icon" });
+        if (u && !looksLikeFavicon(u)) out.push({ url: u, source: "manifest-icon" });
       }
     }
 
@@ -185,13 +200,10 @@ async function resolveSquareIconLogo(domain) {
     // ignore
   }
 
-  // 2) Add common icon locations (some sites host high-res app icons here)
+  // 2) Add common HIGH-RES icon locations (no favicons)
   candidates.push({ url: `https://${domain}/apple-touch-icon.png`, source: "guess-apple-touch-icon" });
   candidates.push({ url: `https://${domain}/android-chrome-192x192.png`, source: "guess-android-192" });
   candidates.push({ url: `https://${domain}/android-chrome-512x512.png`, source: "guess-android-512" });
-  candidates.push({ url: `https://${domain}/favicon-32x32.png`, source: "guess-favicon-32" });
-  candidates.push({ url: `https://${domain}/favicon-16x16.png`, source: "guess-favicon-16" });
-  candidates.push({ url: `https://${domain}/favicon.ico`, source: "guess-favicon-ico" });
 
   // Dedupe by URL
   const seen = new Set();
@@ -230,7 +242,7 @@ async function resolveSquareIconLogo(domain) {
 
   const best = pickBestCandidate(evaluated);
 
-  // If nothing square and big enough: fallback to frontend-provided /logo.png
+  // If nothing square and big enough: fallback to /logo.png
   if (!best) {
     const fallback = {
       url: "/logo.png",
@@ -289,8 +301,10 @@ async function buildIcpResponse(url) {
     company: {
       name: companyName,
       domain,
-      logoUrl: `https://logo.clearbit.com/${domain}`,
-      brandColor: "#FF0000",
+      // ✅ IMPORTANT: actually use the resolved square logo (or /logo.png fallback)
+      logoUrl: logo.url,
+      // ✅ back to normal (no “red test”)
+      brandColor: "#6C47FF",
     },
     persona: {
       title: "VP of Sales",
