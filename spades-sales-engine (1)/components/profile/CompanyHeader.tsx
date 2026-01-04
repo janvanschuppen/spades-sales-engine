@@ -5,13 +5,8 @@ interface CompanyHeaderProps {
 }
 
 export const CompanyHeader: React.FC<CompanyHeaderProps> = ({ data }) => {
-  const logo =
-    data?.company?.logoUrl && data.company.logoUrl !== "/logo.png"
-      ? data.company.logoUrl
-      : "/logo.png";
-
-  const brandColor = data?.company?.brandColor || "#6C47FF";
   const companyName = data?.company?.name || "Company";
+  const brandColor = data?.company?.brandColor || "#6C47FF";
 
   return (
     <div className="relative rounded-3xl overflow-hidden bg-black">
@@ -21,17 +16,17 @@ export const CompanyHeader: React.FC<CompanyHeaderProps> = ({ data }) => {
       {/* CONTENT */}
       <div className="absolute inset-0 flex items-end">
         <div className="p-8 flex items-center gap-6">
-          {/* LOGO (1:1 ONLY) */}
+          {/* LOGO (STRICT: backend decides, frontend only renders) */}
           <div
             className="w-20 h-20 rounded-2xl bg-black flex items-center justify-center overflow-hidden"
             style={{ border: `3px solid ${brandColor}` }}
           >
             <img
-              src={logo}
+              src={data?.company?.logoUrl}
               alt={`${companyName} logo`}
               className="w-full h-full object-contain"
               onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = "/logo.png";
+                e.currentTarget.src = "/logo.png";
               }}
             />
           </div>
