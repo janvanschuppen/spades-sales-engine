@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const sharp = require("sharp");
 const path = require("path");
 const fs = require("fs");
 
@@ -13,17 +12,10 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 /* -------------------- */
-/* CONFIG */
-/* -------------------- */
-// 🔴 IMPORTANT: set this to your REAL backend URL on Render
-const BACKEND_BASE_URL =
-  process.env.BACKEND_BASE_URL || "https://spades-sales-engine.onrender.com";
-
-/* -------------------- */
 /* SERVE logo.png (NO public folder needed) */
 /* -------------------- */
 app.get("/logo.png", (req, res) => {
-  const logoPath = path.join(__dirname, "..", "logo.png"); // logo.png is repo root
+  const logoPath = path.join(__dirname, "logo.png");
   if (fs.existsSync(logoPath)) {
     res.sendFile(logoPath);
   } else {
@@ -38,50 +30,34 @@ app.get("/health", (_, res) => res.status(200).send("ok"));
 app.get("/auth/me", (_, res) => res.json({ success: false, user: null }));
 
 /* -------------------- */
-/* LOGO RESOLVER (STRICT 1:1 ONLY) */
-/* -------------------- */
-async function resolveSquareIconLogo(domain) {
-  /**
-   * HARD RULES (ENFORCED):
-   * - No favicon
-   * - No cropping
-   * - No Clearbit
-   * - If no VERIFIED 1:1 icon → fallback ONLY
-   */
-
-  return {
-    url: `${BACKEND_BASE_URL}/logo.png`,
-    confidence: "fallback"
-  };
-}
-
-/* -------------------- */
-/* ICP BUILDER (FINAL + CORRECT) */
+/* ICP BUILDER — LOCKED + SAFE */
 /* -------------------- */
 async function buildIcpResponse(url) {
   let domain = "company.com";
   let name = "COMPANY";
 
   try {
-    domain = String(url)
+    domain = String(url || "")
       .replace(/^https?:\/\//, "")
       .replace(/^www\./, "")
       .split("/")[0];
     name = domain.split(".")[0].toUpperCase();
   } catch {}
 
-  const logo = await resolveSquareIconLogo(domain);
-
   return {
+    /* ✅ FRONTEND EXPECTED SHAPE */
+
     company: {
       name,
       domain,
-      logoUrl: logo.url // ✅ ALWAYS ABSOLUTE URL
+      logoUrl: "/logo.png", // 🔒 HARD LOCK — NO FACEBOOK, NO CLEARBIT
+      brandColor: "#6C47FF"
     },
 
     primaryColor: "#6C47FF",
 
-    valueProp: "Automate your entire sales pipeline without manual work.",
+    valueProp:
+      "Automate your entire sales pipeline without manual work.",
 
     icp: {
       persona: {
@@ -91,10 +67,20 @@ async function buildIcpResponse(url) {
         mindset: "Growth-focused, efficiency obsessed",
         motivation: "Hit aggressive revenue targets with fewer people"
       },
+
       painPoints: [
-        { title: "Inconsistent messaging", description: "Every rep sells differently" },
-        { title: "Manual CRM work", description: "Sales time wasted on admin" },
-        { title: "Pipeline unpredictability", description: "Forecasts are unreliable" }
+        {
+          title: "Inconsistent messaging",
+          description: "Every rep sells differently"
+        },
+        {
+          title: "Manual CRM work",
+          description: "Sales time wasted on admin"
+        },
+        {
+          title: "Pipeline unpredictability",
+          description: "Forecasts are unreliable"
+        }
       ]
     },
 
@@ -119,9 +105,9 @@ app.post("/api/analysis/icp", async (req, res) => {
 });
 
 /* -------------------- */
-/* START */
+/* START SERVER */
 /* -------------------- */
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () =>
-  console.log(`🚀 Backend running on ${BACKEND_BASE_URL}`)
+  console.log(`🚀 Backend running on port ${PORT}`)
 );
