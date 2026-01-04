@@ -9,9 +9,7 @@
     "start": "node index.cjs"
   },
   "dependencies": {
-"sharp": "^0.33.5"
-  }
-}
+    "sharp": "^0.33.5",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "lucide-react": "^0.561.0",
