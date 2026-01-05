@@ -14,7 +14,7 @@ export default function LoadingScreen() {
   const [progress, setProgress] = useState(0);
 
   // Fixed static path used to avoid module resolution errors in browser-native ESM
-  const spadesLogo = "/static/branding/logo.png";
+  const spadesLogo = "/logo.png";
 
   useEffect(() => {
     const stepTimer = setInterval(() => {
