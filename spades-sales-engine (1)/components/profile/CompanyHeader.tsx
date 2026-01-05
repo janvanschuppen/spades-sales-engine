@@ -12,9 +12,10 @@ export const CompanyHeader: React.FC<CompanyHeaderProps> = ({ data }) => {
    * - No other logic, no guessing, no recovery
    */
   const logoUrl =
-    typeof data?.company?.logoUrl === "string" && data.company.logoUrl.trim() !== ""
-      ? data.company.logoUrl
-      : "/logo.png";
+  typeof data?.company?.logoUrl === "string" &&
+  data.company.logoUrl.trim() !== ""
+    ? data.company.logoUrl
+    : null;
 
   const brandColor = data?.company?.brandColor || "#6C47FF";
   const companyName = data?.company?.name || "Company";
